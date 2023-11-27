@@ -1,21 +1,21 @@
 name: cytotraj
 channels:
-  - conda-forge
   - anaconda
   - pytorch
+  - nvidia
+  - conda-forge
 dependencies:
   - python=3.11
   - pip
-  - pandas
-  - numpy
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=11.8
   - seaborn
   - matplotlib
   - ipykernel
   - jupyter
   - pre_commit
-  - pytorch::pytorch
-  - pytorch::torchvision
-  - pytorch::torchaudio
   - pip:
       - black
 

@@ -6,7 +6,7 @@ enhances modularity and convenience in managing file operations.
 """
 
 import pathlib
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -32,7 +32,9 @@ def _convert_to_pathlib_object(str_path: str) -> pathlib.Path():
     return pathlib.Path(str_path).resolve(strict=True)
 
 
-def _is_valid_path(value: Any) -> None | pathlib.Path:
+def _is_valid_path(
+    value: Any, is_file_type: Optional[bool] = True
+) -> None | pathlib.Path:
     """Checks if the provided objects is a valid path.
 
     The function transforms strings into pathlib.Path objects to
@@ -43,6 +45,11 @@ def _is_valid_path(value: Any) -> None | pathlib.Path:
     ----------
     value : Any
         _description_
+
+    is_file_type : Optional[bool]
+        indicates if the file is a `file` or `directory`. If True (default) then
+        the provided path is a file not a directory. If set to False, then the
+        the path is a Directory.
 
     Returns
     -------
@@ -65,10 +72,19 @@ def _is_valid_path(value: Any) -> None | pathlib.Path:
         )
     if isinstance(value, str):
         value = _convert_to_pathlib_object(value)
-        return value
     if isinstance(value, pathlib.Path):
         value = value.resolve(strict=True)
-        return value
+
+    # now checking if the provided path is a file or directory depending on the
+    # `is_file_type` parameter
+    is_valid_type = (is_file_type and value.is_file()) or (
+        not is_file_type and value.is_dir()
+    )
+    type_description = "file" if is_file_type else "directory"
+    if not is_valid_type:
+        raise TypeError(f"Path {value.absolute()} is not a {type_description} path.")
+
+    return value
 
 
 def load_data(fpath: str | pathlib.Path) -> pd.DataFrame:

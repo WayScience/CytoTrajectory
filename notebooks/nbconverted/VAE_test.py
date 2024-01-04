@@ -4,20 +4,24 @@
 # # Image-based profiles VAEs
 
 # In[1]:
-
+import sys
+import warnings
 
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from cytotraj.utils.model_utils import load_data
 from torch.utils.data import Dataset
+
+warnings.simplefilter("ignore")
+sys.path.append("../")
+from cytotraj.utils.io import load_data  # noqa
 
 # ## Building VAE class for Image-based profiles and Loss Function
 #
 
-# In[9]:
+# In[2]:
 
 
 class ImageProfileVAE(nn.Module):
@@ -57,7 +61,6 @@ class ImageProfileVAE(nn.Module):
             nn.Linear(32, 64),
             nn.ReLU(),
             nn.Linear(64, input_dim),
-            nn.Sigmoid(),
         )
 
     # methods for the VAE
@@ -263,15 +266,16 @@ class ImageProfileDataset(Dataset):
 
 # ## Load CFReT Data
 
-# In[15]:
+# In[4]:
 
 
-sc_profile = pd.read_parquet(
-    "./localhost220512140003_KK22-05-198_sc_normalized.parquet"
+sc_profile = load_data(
+    "../data/localhost220512140003_KK22-05-198_sc_normalized.parquet"
 )
+sc_profile.head()
 
 
-# In[16]:
+# In[5]:
 
 
 print("removing features that do not contain real numerical values")
@@ -284,7 +288,7 @@ print("making all values into float32 and drop NaN's")
 sc_profile = sc_profile.astype("float32").dropna()
 
 
-# In[17]:
+# In[6]:
 
 
 sc_profile.info()
@@ -292,7 +296,7 @@ sc_profile.info()
 
 # ## Train VAE with CFReT Data
 
-# In[18]:
+# In[7]:
 
 
 # Hyper parameters
@@ -302,14 +306,14 @@ batch_size = 64
 num_epochs = 5
 
 
-# In[19]:
+# In[8]:
 
 
 # Add Dataframe into Dataset class allowing easy integration to VAE
-dataloader = load_data(sc_profile)
+dataloader = ImageProfileDataset(sc_profile)
 
 
-# In[20]:
+# In[9]:
 
 
 # Initialize VAE and optimizer
@@ -317,7 +321,7 @@ vae = ImageProfileVAE(input_dim, latent_dim)
 optimizer = optim.Adam(vae.parameters(), lr=0.001)
 
 
-# In[21]:
+# In[10]:
 
 
 # training oop
@@ -330,9 +334,6 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
-
-
-# In[ ]:
 
 
 # In[ ]:

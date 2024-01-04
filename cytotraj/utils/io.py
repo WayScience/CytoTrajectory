@@ -108,6 +108,8 @@ def load_data(fpath: str | pathlib.Path) -> pd.DataFrame:
     file_ext = fpath.suffix
     if file_ext == ".csv":
         df = pd.read_csv(fpath)
+    if file_ext == ".tsv":
+        df = pd.read_table(fpath)
     elif file_ext == ".parquet":
         df = pd.read_parquet(fpath)
     else:

@@ -61,7 +61,6 @@ class ImageProfileVAE(nn.Module):
             nn.Linear(32, 64),
             nn.ReLU(),
             nn.Linear(64, input_dim),
-            nn.ReLU(),
         )
 
     # methods for the VAE
